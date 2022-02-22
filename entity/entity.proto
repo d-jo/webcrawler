@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package entity;
+
+option go_package = "github.com/d-jo/webcrawler/entity";
+
+message StartCommand {
+  string url = 1;
+}
+
+message StopCommand {
+  string url = 1;
+}
+
+message ListCommand {
+  string filter = 1;
+}
+
+message CrawledPage {
+  string url = 1;
+  repeated CrawledPage children = 2;
+}
+
+message ListResponse {
+  CrawledPage root = 1;
+}
+
+message GenericResponse {
+  bool success = 1;
+  string message = 2;
+}

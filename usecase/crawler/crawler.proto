@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package crawler;
+
+option go_package = "github.com/d-jo/webcrawler/usecase/webcrawler";
+
+import "entity.proto";
+
+service WebCrawler {
+  rpc StartCrawling (entity.StartCommand) returns  (entity.GenericResponse) {}
+  rpc StopCrawling  (entity.StopCommand) returns   (entity.GenericResponse) {}
+  rpc List          (entity.ListCommand) returns   (entity.ListResponse) {}
+}
