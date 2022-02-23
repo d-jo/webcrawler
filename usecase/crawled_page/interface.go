@@ -15,3 +15,9 @@ type Repository interface {
 	Reader
 	Writer
 }
+
+type UseCase interface {
+	GetChildren(url string) (map[string]int32, error)
+	GetTree(url string) (*entity.CrawledPage, error)
+	AddPage(page *entity.CrawledPage) error
+}
