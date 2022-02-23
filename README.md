@@ -2,11 +2,11 @@
 
 ## Client
 
-`crawl -start <url>` - starts crawling the given url
+`crawl --start <url>` - starts crawling the given url
 
-`crawl -stop <url>` - stops crawling the given url
+`crawl --stop <url>` - stops crawling the given url
 
-`crawl -list` - show the site tree
+`crawl --list` - show the site tree
 
 
 ## Service
