@@ -1,6 +1,7 @@
 package crawler
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -15,6 +16,7 @@ import (
 )
 
 type Service struct {
+	UnimplementedWebCrawlerServer
 	pageService crawled_page.UseCase
 	client      *http.Client
 	workers     map[string]chan interface{}
@@ -155,7 +157,7 @@ func (s *Service) crawlWorker(target_url string, done <-chan interface{}) {
 	}()
 }
 
-func (s *Service) StartCrawling(sc *entity.StartCommand) *entity.GenericResponse {
+func (s *Service) StartCrawling(ctx context.Context, sc *entity.StartCommand) (*entity.GenericResponse, error) {
 
 	parsedUrl, err := url.Parse(sc.Url)
 
@@ -163,7 +165,7 @@ func (s *Service) StartCrawling(sc *entity.StartCommand) *entity.GenericResponse
 		return &entity.GenericResponse{
 			Success: false,
 			Message: "invalid url",
-		}
+		}, nil
 	}
 
 	done := make(chan interface{})
@@ -186,10 +188,10 @@ func (s *Service) StartCrawling(sc *entity.StartCommand) *entity.GenericResponse
 	return &entity.GenericResponse{
 		Success: true,
 		Message: fmt.Sprintf("started crawling %s", host),
-	}
+	}, nil
 }
 
-func (s *Service) StopCrawling(sc *entity.StopCommand) *entity.GenericResponse {
+func (s *Service) StopCrawling(ctx context.Context, sc *entity.StopCommand) (*entity.GenericResponse, error) {
 
 	parsedUrl, err := url.Parse(sc.Url)
 
@@ -197,7 +199,7 @@ func (s *Service) StopCrawling(sc *entity.StopCommand) *entity.GenericResponse {
 		return &entity.GenericResponse{
 			Success: false,
 			Message: "invalid url",
-		}
+		}, nil
 	}
 
 	// close the channel
@@ -206,10 +208,10 @@ func (s *Service) StopCrawling(sc *entity.StopCommand) *entity.GenericResponse {
 	return &entity.GenericResponse{
 		Success: true,
 		Message: fmt.Sprintf("stopped crawling %s", parsedUrl.Hostname()),
-	}
+	}, nil
 }
 
-func (s *Service) List(lc *entity.ListCommand) *entity.ListResponse {
+func (s *Service) List(ctx context.Context, lc *entity.ListCommand) (*entity.ListResponse, error) {
 
 	pages, err := s.pageService.GetAll()
 
@@ -217,13 +219,13 @@ func (s *Service) List(lc *entity.ListCommand) *entity.ListResponse {
 		return &entity.ListResponse{
 			Success: false,
 			Message: "failed to get pages",
-		}
+		}, nil
 	}
 
 	return &entity.ListResponse{
 		Success: true,
 		Root:    pages,
-	}
+	}, nil
 }
 
 func (s *Service) CloseAllWorkers() bool {
