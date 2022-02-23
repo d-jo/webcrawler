@@ -167,10 +167,22 @@ func (s *Service) StartCrawling(sc *entity.StartCommand) *entity.GenericResponse
 }
 
 func (s *Service) StopCrawling(sc *entity.StopCommand) *entity.GenericResponse {
-	// TODO
+
+	parsedUrl, err := url.Parse(sc.Url)
+
+	if err != nil {
+		return &entity.GenericResponse{
+			Success: false,
+			Message: "invalid url",
+		}
+	}
+
+	// close the channel
+	close(s.workers[parsedUrl.Hostname()])
+
 	return &entity.GenericResponse{
-		Success: false,
-		Message: "not implemented",
+		Success: true,
+		Message: fmt.Sprintf("stopped crawling %s", parsedUrl.Hostname()),
 	}
 }
 
