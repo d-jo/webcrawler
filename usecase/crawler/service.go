@@ -50,10 +50,13 @@ func (s *Service) crawlWorker(url string, done <-chan interface{}) {
 			visited, ok := s.visited[currLink]
 			s.mux.RUnlock()
 
+			// we have visited here before
+			// so lets not make a request
 			if ok || visited {
 				break
 			}
 
+			// get the page
 			resp, err := s.client.Get(currLink)
 
 			if err != nil {
@@ -94,12 +97,13 @@ func (s *Service) crawlWorker(url string, done <-chan interface{}) {
 			// set this workers next link
 			currLink = allLinks[0][0]
 
-			// for all the other links, start a goroutine
-			for _, link := range allLinks[1:] {
-				s.crawlWorker(link[0], done)
+			if len(allLinks) > 1 {
+				// for all the other links, start a goroutine
+				for _, link := range allLinks[1:] {
+					s.crawlWorker(link[0], done)
+				}
 			}
 
-			break
 		}
 	}()
 }
