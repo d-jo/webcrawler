@@ -13,7 +13,6 @@ message StopCommand {
 }
 
 message ListCommand {
-  string filter = 1;
 }
 
 message CrawledPage {
@@ -22,7 +21,9 @@ message CrawledPage {
 }
 
 message ListResponse {
-  CrawledPage root = 1;
+  bool success = 1;
+  string message = 2;
+  repeated CrawledPage root = 3;
 }
 
 message GenericResponse {

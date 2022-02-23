@@ -5,6 +5,7 @@ import "github.com/d-jo/webcrawler/entity"
 type Reader interface {
 	GetChildren(url string) (map[string]int32, error)
 	GetTree(url string) (*entity.CrawledPage, error)
+	GetAllKeys() ([]string, error)
 }
 
 type Writer interface {
@@ -20,4 +21,5 @@ type UseCase interface {
 	GetChildren(url string) (map[string]int32, error)
 	GetTree(url string) (*entity.CrawledPage, error)
 	AddPage(page *entity.CrawledPage) error
+	GetAll() ([]*entity.CrawledPage, error)
 }

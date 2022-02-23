@@ -109,7 +109,13 @@ func (s *Service) crawlWorker(url string, done <-chan interface{}) {
 			// use the util function for extracting links
 			allLinks, err := util.SearchForURLs(string(content), url)
 
-			children := make([]*entity.CrawledPage, len(allLinks), len(allLinks))
+			if err != nil {
+				// failed to extract links
+				failures++
+				continue
+			}
+
+			children := make([]*entity.CrawledPage, len(allLinks))
 			for i, link := range allLinks {
 				children[i] = &entity.CrawledPage{
 					Url: link[0],
@@ -188,4 +194,17 @@ func (s *Service) StopCrawling(sc *entity.StopCommand) *entity.GenericResponse {
 
 func (s *Service) List(lc *entity.ListCommand) *entity.ListResponse {
 
+	pages, err := s.pageService.GetAll()
+
+	if err != nil {
+		return &entity.ListResponse{
+			Success: false,
+			Message: "failed to get pages",
+		}
+	}
+
+	return &entity.ListResponse{
+		Success: true,
+		Root:    pages,
+	}
 }

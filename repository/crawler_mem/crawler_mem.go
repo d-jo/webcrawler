@@ -124,3 +124,15 @@ func (s *RepoService) GetTree(url string) (*entity.CrawledPage, error) {
 
 	return &root, nil
 }
+
+func (s *RepoService) GetAllKeys() ([]string, error) {
+	s.mux.RLock()
+	defer s.mux.RUnlock()
+
+	var keys []string
+	for k := range s.Pages {
+		keys = append(keys, k)
+	}
+
+	return keys, nil
+}

@@ -23,3 +23,25 @@ func (s *Service) GetTree(url string) (*entity.CrawledPage, error) {
 func (s *Service) AddPage(page *entity.CrawledPage) error {
 	return s.repo.AddPage(page)
 }
+
+func (s *Service) GetAll() ([]*entity.CrawledPage, error) {
+	keys, err := s.repo.GetAllKeys()
+
+	if err != nil {
+		return nil, err
+	}
+
+	results := make([]*entity.CrawledPage, 0)
+
+	for _, k := range keys {
+		page, err := s.repo.GetTree(k)
+
+		if err != nil {
+			continue
+		}
+
+		results = append(results, page)
+	}
+
+	return results, nil
+}
