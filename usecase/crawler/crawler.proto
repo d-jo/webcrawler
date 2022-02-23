@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package crawler;
 
-option go_package = "github.com/d-jo/webcrawler/usecase/webcrawler";
+option go_package = "github.com/d-jo/webcrawler/usecase/crawler";
 
 import "entity.proto";
 
