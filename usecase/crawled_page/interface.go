@@ -10,6 +10,7 @@ type Reader interface {
 
 type Writer interface {
 	AddPage(page *entity.CrawledPage) error
+	AddRootPage(url string) error
 }
 
 type Repository interface {
@@ -22,4 +23,5 @@ type UseCase interface {
 	GetTree(url string) (*entity.CrawledPage, error)
 	AddPage(page *entity.CrawledPage) error
 	GetAll() ([]*entity.CrawledPage, error)
+	AddRootPage(url string) error
 }

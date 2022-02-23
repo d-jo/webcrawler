@@ -45,3 +45,7 @@ func (s *Service) GetAll() ([]*entity.CrawledPage, error) {
 
 	return results, nil
 }
+
+func (s *Service) AddRootPage(url string) error {
+	return s.repo.AddRootPage(url)
+}

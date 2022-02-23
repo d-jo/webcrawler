@@ -12,15 +12,28 @@ import (
 	and we can count the occurances of a url. This means we dont have to remote duplicates when doing the regex
 */
 type RepoService struct {
-	Pages map[string]map[string]int32 `json:"pages"`
-	mux   *sync.RWMutex
+	Pages     map[string]map[string]int32 `json:"pages"`
+	RootPages map[string]bool             `json:"root_pages"`
+	mux       *sync.RWMutex
+	rootMux   *sync.RWMutex
 }
 
 func NewRepoService() (*RepoService, error) {
 	return &RepoService{
-		Pages: make(map[string]map[string]int32),
-		mux:   &sync.RWMutex{},
+		Pages:     make(map[string]map[string]int32),
+		RootPages: make(map[string]bool),
+		mux:       &sync.RWMutex{},
+		rootMux:   &sync.RWMutex{},
 	}, nil
+}
+
+func (s *RepoService) AddRootPage(url string) error {
+	s.rootMux.Lock()
+	defer s.rootMux.Unlock()
+
+	s.RootPages[url] = true
+
+	return nil
 }
 
 /*
@@ -130,7 +143,7 @@ func (s *RepoService) GetAllKeys() ([]string, error) {
 	defer s.mux.RUnlock()
 
 	var keys []string
-	for k := range s.Pages {
+	for k := range s.RootPages {
 		keys = append(keys, k)
 	}
 

@@ -3,6 +3,7 @@ package crawler
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"sync"
@@ -47,11 +48,12 @@ func NewService(page_service crawled_page.UseCase) *Service {
 	there is no delay between requests. this should crawl the entire site web very quickly
 	and terminate after the entire site has been crawled.
 */
-func (s *Service) crawlWorker(url string, done <-chan interface{}) {
+func (s *Service) crawlWorker(target_url string, done <-chan interface{}) {
 	go func() {
-		currLink := url
+		currLink := target_url
 		failures := 0
 		for {
+			log.Println("crawling", currLink)
 			// check if we are done
 			select {
 			case <-done:
@@ -106,8 +108,14 @@ func (s *Service) crawlWorker(url string, done <-chan interface{}) {
 			s.visited[currLink] = true
 			s.mux.Unlock()
 
+			purl, _ := url.Parse(currLink)
+			host := purl.Hostname()
+			if len(purl.Port()) > 0 {
+				host = fmt.Sprintf("%s:%s", host, purl.Port())
+			}
+
 			// use the util function for extracting links
-			allLinks, err := util.SearchForURLs(string(content), url)
+			allLinks, err := util.SearchForURLs(string(content), host)
 
 			if err != nil {
 				// failed to extract links
@@ -159,7 +167,16 @@ func (s *Service) StartCrawling(sc *entity.StartCommand) *entity.GenericResponse
 	}
 
 	done := make(chan interface{})
-	host := parsedUrl.Hostname()
+	host := parsedUrl.Scheme + "://" + parsedUrl.Hostname()
+	port := parsedUrl.Port()
+
+	if len(port) > 0 {
+		host = fmt.Sprintf("%s:%s", host, port)
+	}
+
+	log.Println("starting to crawl", host)
+
+	s.pageService.AddRootPage(host)
 
 	// start going
 	s.crawlWorker(host, done)
@@ -207,4 +224,11 @@ func (s *Service) List(lc *entity.ListCommand) *entity.ListResponse {
 		Success: true,
 		Root:    pages,
 	}
+}
+
+func (s *Service) CloseAllWorkers() bool {
+	for _, done := range s.workers {
+		close(done)
+	}
+	return true
 }
