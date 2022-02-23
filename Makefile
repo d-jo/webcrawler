@@ -1,8 +1,9 @@
 
 CLIENTNAME = crawl
 SERVERNAME = server
+TESTSERVERNAME = testserver
 
-all: client server
+all: client server testserver
 
 server: ./api/server/main.go grpc_service 
 	mkdir -p release
@@ -10,7 +11,11 @@ server: ./api/server/main.go grpc_service
 
 client: ./cmd/client/main.go grpc_service
 	mkdir -p release
-	go build --tags=prod -o ./release/$(CLIENTNAME)./cmd/client/main.go && cp ./release/$(CLIENTNAME) ./cmd/client/$(CLIENTNAME)
+	go build --tags=prod -o ./release/$(CLIENTNAME) ./cmd/client/main.go && cp ./release/$(CLIENTNAME) ./cmd/client/$(CLIENTNAME)
+
+testserver: ./api/testserver/main.go 
+	mkdir -p release
+	go build --tags=prod -o ./release/$(TESTSERVERNAME) ./api/testserver/main.go && cp ./release/$(TESTSERVERNAME) ./api/testserver/$(TESTSERVERNAME)
 
 grpc_entity: ./entity/entity.proto 
 	protoc -I=./entity --go_opt=paths=source_relative --go_out=./entity/ --go-grpc_out=./entity/ --go-grpc_opt=paths=source_relative entity/*.proto
@@ -25,5 +30,7 @@ grpc_clean:
 clean: grpc_clean
 	rm -f ./release/$(SERVERNAME)
 	rm -f ./api/server/$(SERVERNAME)
+	rm -f ./release/$(TESTSERVERNAME)
+	rm -f ./api/server/$(TESTSERVERNAME)
 	rm -f ./release/$(CLIENTNAME)
 	rm -f ./cmd/client/$(CLIENTNAME)
