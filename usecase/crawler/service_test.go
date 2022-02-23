@@ -1,6 +1,7 @@
 package crawler_test
 
 import (
+	context "context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -58,7 +59,7 @@ func TestCrawl1(t *testing.T) {
 		Url: srv.URL + "/",
 	}
 
-	resp := crawler.StartCrawling(&sc)
+	resp, _ := crawler.StartCrawling(context.TODO(), &sc)
 
 	if resp.Success != true {
 		t.Error("expected success:", resp.Message)
@@ -68,7 +69,7 @@ func TestCrawl1(t *testing.T) {
 
 	time.Sleep(time.Second * 2)
 
-	list := crawler.List(&lc)
+	list, _ := crawler.List(context.TODO(), &lc)
 
 	var buf strings.Builder
 	util.FPrintChildren(&buf, list.Root[0], 0)
@@ -137,7 +138,7 @@ func TestCrawl2(t *testing.T) {
 		Url: srv.URL + "/",
 	}
 
-	resp := crawler.StartCrawling(&sc)
+	resp, _ := crawler.StartCrawling(context.TODO(), &sc)
 
 	if resp.Success != true {
 		t.Error("expected success:", resp.Message)
@@ -147,7 +148,7 @@ func TestCrawl2(t *testing.T) {
 
 	time.Sleep(time.Second * 2)
 
-	list := crawler.List(&lc)
+	list, _ := crawler.List(context.TODO(), &lc)
 
 	var buf strings.Builder
 	util.FPrintChildren(&buf, list.Root[0], 0)
@@ -220,7 +221,7 @@ func TestCrawl3(t *testing.T) {
 		Url: srv.URL + "/",
 	}
 
-	resp := crawler.StartCrawling(&sc)
+	resp, _ := crawler.StartCrawling(context.TODO(), &sc)
 
 	if resp.Success != true {
 		t.Error("expected success:", resp.Message)
@@ -230,7 +231,7 @@ func TestCrawl3(t *testing.T) {
 
 	time.Sleep(time.Second * 2)
 
-	list := crawler.List(&lc)
+	list, _ := crawler.List(context.TODO(), &lc)
 
 	var buf strings.Builder
 	util.FPrintChildren(&buf, list.Root[0], 0)
