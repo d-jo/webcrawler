@@ -17,9 +17,11 @@ The service should crawl pages on the same domain only. The service should be ab
 
 The `Makefile` contains the following targets:
 
-`all` - builds the client and server and all their dependencies
+`all` - builds the client, testserver, and server and all their dependencies
 
 `server` - builds the server and its target, including the gRPC targets
+
+`testserver` - builds the test server and its target, including the gRPC targets
 
 `client` - builds the client and its target, including the gRPC targets
 
@@ -31,3 +33,37 @@ The `Makefile` contains the following targets:
 
 `clean` - cleans compiled files from release folder and from their folders in api and cmd
 
+## Source Map
+
+`api`
+  -  `server` - the gRPC server
+  -  `testserver` - a simple test http server to test the crawler locally
+
+`cmd`
+  - `client` - the gRPC client
+
+`entity`
+  - `entity.proto` - the entity definitions
+
+`repository `
+  - `crawler_mem` 
+    - `crawler_mem.go` - the repository implementation for storing visited sites in memory
+    - `crawler_mem_test.go` - the repository test file
+
+`usecase`
+  - `crawled_page`
+    - `interface.go` - the interface for the crawled page usecase and repository
+    - `service.go` - the service implementation for the crawled page usecase
+
+  - `crawler`
+    - `service.go` - the usecase implementation
+    - `service_test.go` - the usecase test file
+    - `crawler.proto` - the usecase service proto definition
+    - `crawler_grpc.pb.go` - generated gRPC file
+    - `crawler.pb.go` - generated gRPC file
+
+`util`
+  - `print.go` - the print utility for printing the tree
+  - `url.go` - the url utility for parsing urls and searching for links
+
+`Makefile` - the makefile for building the project. see above for possible targets
