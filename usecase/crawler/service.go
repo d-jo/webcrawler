@@ -33,16 +33,34 @@ func NewService(page_service crawled_page.UseCase) *Service {
 	}
 }
 
-func (s *Service) crawlWorker(url string, done <-chan interface{}) {
+/*
+	Crawl worker starts a goroutine that will crawl the given host. For each page,
+	the URL and its children are sent to the repository for storage.
 
+	The worker will start with the given URL. The first link it finds it will traverse next
+	after it spawns goroutines to crawl all the other links
+
+	we use the visited map to avoid crawling the same URL twice and running
+	in to a cycle. If it fails to get a 200 response it will retry 5 times before finally
+	giving up.
+
+	there is no delay between requests. this should crawl the entire site web very quickly
+	and terminate after the entire site has been crawled.
+*/
+func (s *Service) crawlWorker(url string, done <-chan interface{}) {
 	go func() {
 		currLink := url
+		failures := 0
 		for {
 			// check if we are done
 			select {
 			case <-done:
 				return
 			default:
+			}
+
+			if failures > 5 {
+				return
 			}
 
 			// check if we have visited here before
@@ -60,10 +78,12 @@ func (s *Service) crawlWorker(url string, done <-chan interface{}) {
 			resp, err := s.client.Get(currLink)
 
 			if err != nil {
+				failures++
 				continue
 			}
 
 			if resp.StatusCode != http.StatusOK {
+				failures++
 				continue
 			}
 
@@ -78,7 +98,8 @@ func (s *Service) crawlWorker(url string, done <-chan interface{}) {
 			content, err := ioutil.ReadAll(resp.Body)
 
 			if err != nil {
-				break
+				failures++
+				continue
 			}
 
 			s.mux.Lock()
@@ -87,6 +108,19 @@ func (s *Service) crawlWorker(url string, done <-chan interface{}) {
 
 			// use the util function for extracting links
 			allLinks, err := util.SearchForURLs(string(content), url)
+
+			children := make([]*entity.CrawledPage, len(allLinks), len(allLinks))
+			for i, link := range allLinks {
+				children[i] = &entity.CrawledPage{
+					Url: link[0],
+				}
+			}
+
+			// add to memory
+			s.pageService.AddPage(&entity.CrawledPage{
+				Url:      currLink,
+				Children: children,
+			})
 
 			// no links, this page doesnt lead anywhere
 			// stop crawling this page
@@ -103,7 +137,6 @@ func (s *Service) crawlWorker(url string, done <-chan interface{}) {
 					s.crawlWorker(link[0], done)
 				}
 			}
-
 		}
 	}()
 }
