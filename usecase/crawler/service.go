@@ -203,7 +203,9 @@ func (s *Service) StopCrawling(ctx context.Context, sc *entity.StopCommand) (*en
 	}
 
 	// close the channel
-	close(s.workers[parsedUrl.Hostname()])
+	if s.workers[parsedUrl.Hostname()] != nil {
+		close(s.workers[parsedUrl.Hostname()])
+	}
 
 	return &entity.GenericResponse{
 		Success: true,
