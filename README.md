@@ -13,6 +13,8 @@
 
 The service should crawl pages on the same domain only. The service should be able to handle cycles and execute requests concurrently.
 
+**DOES NOT INCLUDE RATELIMITING**, so if you run this on an actual webpage it will request as many pages as possible as quickly as possible until there are no more pages left to request, concurrently. Use the testserver for a basic test, if used on an actual site, all liability is on the user.
+
 ## Building
 
 The `Makefile` contains the following targets:
